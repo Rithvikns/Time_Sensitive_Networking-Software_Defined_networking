@@ -1,0 +1,6 @@
+[submodule "xdp/dependencies/libbpf"]
+	path = xdp/dependencies/libbpf
+	url = https://github.com/libbpf/libbpf.git
+[submodule "xdp/dependencies/xdp-tutorial"]
+	path = xdp/dependencies/xdp-tutorial
+	url = https://github.com/xdp-project/xdp-tutorial.git
