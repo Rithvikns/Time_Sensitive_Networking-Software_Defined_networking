@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 3.8)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # libbpf directories
+# libbpf directories
 set(LIBBPF_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/libbpf)
-set(LIBBPF_INCL_DIR ${LIBBPF_DIR}/src)
+set(LIBBPF_INCL_DIR ${LIBBPF_DIR}/src/root/usr/include)
 include_directories(${LIBBPF_INCL_DIR})
 
 project(xdp-pass)

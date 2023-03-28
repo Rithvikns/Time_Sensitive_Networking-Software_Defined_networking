@@ -1,8 +1,11 @@
-#include <linux/bpf.h>
-#include <bpf_helpers.h>
-#include <linux/if_ether.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#include <linux/bpf.h>
+#include <linux/if_ether.h>
+#include <linux/types.h>
+
+#include <bpf/bpf_helpers.h>
 
 static const char eth_d_addr[] = {0x00,0x00,0x00,0x00,0x00,0x00};
 
