@@ -26,7 +26,7 @@ ADD_LIBRARY(xdp-tutorial-commons ${XDPTUTORIAL_COMMON}/common_user_bpf_xdp.c ${X
 target_include_directories(xdp-tutorial-commons PRIVATE ${LIBBPF_INCL} ${LIBBPF_INCL2} ${XDPTUTORIAL_COMMON})
 
 # The user-space program interacting with the BPF program in kernel
-add_executable(xdp-drop_and_count-user xdp-drop_and_count-user.c)
+add_executable(xdp-drop_and_count-user bpf/xdp-drop_and_count-commons.h xdp-drop_and_count-user.c)
 target_include_directories(xdp-drop_and_count-user PRIVATE ${LIBBPF_INCL} ${XDPTUTORIAL_COMMON})
 target_link_libraries(xdp-drop_and_count-user xdp-tutorial-commons bpf elf)
 

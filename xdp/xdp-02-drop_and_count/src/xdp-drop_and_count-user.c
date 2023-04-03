@@ -11,6 +11,8 @@
 #include <common_defines.h>
 #include <common_user_bpf_xdp.h>
 
+#include "bpf/xdp-drop_and_count-commons.h"
+
 #define EXIT_OK 0
 #define EXIT_FAIL_BPFLOAD 1
 #define EXIT_FAIL_FINDMAP 2
@@ -30,16 +32,49 @@ int get_map_fd(struct bpf_object *bpf_obj, const char *maps_name)
 	return bpf_map__fd(map);
 }
 
-int poll_stats(int map_fd)
+void print_mac(char *addr, size_t len)
+{
+	for (size_t i = 0; i < len; i++) {
+		printf("%02x", addr[i]);
+		if (i+1 != len)
+			printf(":");
+	}
+}
+
+void print_stats_per_mac(int stats_per_mac_map_fd)
+{
+	// We can iterate through all keys of the hash map as follows:
+	// 1. Set current key to NULL for first query.
+	struct hash_map_key next_key;
+	struct hash_map_value value;
+	if (bpf_map_get_next_key(stats_per_mac_map_fd, NULL, &next_key) != 0)
+		return; // empty hash map
+
+	do {
+		struct hash_map_key current_key = next_key;
+		// Lock entry for reading element atomically.
+		bpf_map_lookup_elem_flags(stats_per_mac_map_fd, &current_key, &value, BPF_F_LOCK);
+		print_mac(current_key.addr, ETH_ALEN);
+		printf(" -> drop count=%lu    t last drop=%lu \n", value.dropped, value.t_lastdrop);
+	} while (bpf_map_get_next_key(stats_per_mac_map_fd, NULL, &next_key) == 0);
+	
+}
+
+int poll_stats(int stats_map_fd, int stats_per_mac_map_fd)
 {
 	__u32 key = 0; // first and only key in map
 	
 	uint64_t drop_cnt;
 	while (1) {
-		if (bpf_map_lookup_elem(map_fd, &key, &drop_cnt) != 0)
+		// Note that the next call involves a system call that *copies*
+		// the value of the requested data. Since data is updated on the kernel-side
+		// with an atomic operation, we do not need to lock the element here.
+		if (bpf_map_lookup_elem(stats_map_fd, &key, &drop_cnt) != 0)
 			return EXIT_FAIL_FINDELEM;
 		
-		printf("Drop count: %lu\n", drop_cnt);
+		printf("Total drop count: %lu\n", drop_cnt);
+
+		print_stats_per_mac(stats_per_mac_map_fd);
 		
 		sleep(1); // sleep one sec.
 	}
@@ -106,14 +141,22 @@ int main(int argc, char **argv)
 		return EXIT_FAIL_BPFLOAD;
 	}
 
-	// Get file descriptor of map "xdp_drop_stats_map" created by BPF program. 
-	int statsmap_fd = get_map_fd(bpf_obj, "xdp_drop_stats_map");
-	if (statsmap_fd < 0) {
+	// Get file descriptor of map "xdp_drop_stats_map".
+	int stats_map_fd = get_map_fd(bpf_obj, "xdp_drop_stats_map");
+	if (stats_map_fd < 0) {
 		xdp_link_detach(cfg.ifindex, cfg.xdp_flags, 0);
 		fprintf(stderr, "Could not find map\n");
 		return EXIT_FAIL_FINDMAP;
 	}
 
+	// Get file descriptor of map "xdp_stats_per_mac_map".
+	int stats_per_mac_map_fd = get_map_fd(bpf_obj, "xdp_stats_per_mac_map");
+	if (stats_per_mac_map_fd < 0) {
+		xdp_link_detach(cfg.ifindex, cfg.xdp_flags, 0);
+		fprintf(stderr, "Could not find map\n");
+		return EXIT_FAIL_FINDMAP;
+	}
+	
 	// Poll for new stats values.
-	return poll_stats(statsmap_fd);
+	return poll_stats(stats_map_fd, stats_per_mac_map_fd);
 }
