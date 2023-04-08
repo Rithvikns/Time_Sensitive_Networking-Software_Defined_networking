@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
 
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
@@ -19,6 +20,8 @@
 #define EXIT_FAIL_FINDELEM 3
 #define EXIT_FAIL_USAGE 4
 #define EXIT_FAIL_DEVICE 5
+
+static int do_exit = 0;
 
 int get_map_fd(struct bpf_object *bpf_obj, const char *maps_name)
 {
@@ -65,7 +68,7 @@ int poll_stats(int stats_map_fd, int stats_per_mac_map_fd)
 	__u32 key = 0; // first and only key in map
 	
 	uint64_t drop_cnt;
-	while (1) {
+	while (!do_exit) {
 		// Note that the next call involves a system call that *copies*
 		// the value of the requested data. Since data is updated on the kernel-side
 		// with an atomic operation, we do not need to lock the element here.
@@ -78,6 +81,8 @@ int poll_stats(int stats_map_fd, int stats_per_mac_map_fd)
 		
 		sleep(1); // sleep one sec.
 	}
+
+	return EXIT_OK;
 }
 
 static void usage(const char *prog)
@@ -88,13 +93,17 @@ static void usage(const char *prog)
 		"\n", prog);
 }
 
-int main(int argc, char **argv)
+static void sigint_handler(int signal)
+{
+	do_exit = 1;
+}
+
+int main(int argc, char *argv[])
 {
 	struct config cfg = {
-		.xdp_flags =
-		XDP_FLAGS_UPDATE_IF_NOEXIST // fail if BPF program already exists
-		| XDP_FLAGS_DRV_MODE, // run BPF program in native driver rather than in generic mode 
-		.ifindex   = -1,
+		.xdp_flags = XDP_FLAGS_UPDATE_IF_NOEXIST | // fail if BPF program already exists
+		XDP_FLAGS_DRV_MODE, // run BPF program in native driver rather than in generic mode 
+		.ifindex   = -1, // network device will be defined by program arguments and mapped to interface index
 		.do_unload = false,
 	};
 	cfg.ifname[0] = 0;
@@ -128,13 +137,16 @@ int main(int argc, char **argv)
 	}
 
 	// User has specified all required options.
+
+	// Catch SIGINT when user exits applications (Ctrl-C).
+        signal(SIGINT, sigint_handler);
 	
 	if ( (cfg.ifindex = if_nametoindex(cfg.ifname)) == 0) {
 		perror("Could not get interface index");
 		return EXIT_FAIL_DEVICE;
 	}
 
-	// Load BPF program using libbpf.
+	// Load BPF program and attach it to network interface using libbpf.
 	struct bpf_object *bpf_obj = load_bpf_and_xdp_attach(&cfg);
 	if (!bpf_obj) {
 		fprintf(stderr, "Could not load and attach BPF program\n");
@@ -157,6 +169,11 @@ int main(int argc, char **argv)
 		return EXIT_FAIL_FINDMAP;
 	}
 	
-	// Poll for new stats values.
-	return poll_stats(stats_map_fd, stats_per_mac_map_fd);
+	// Poll for new statistics values until user terminates program.
+	int exitcode = poll_stats(stats_map_fd, stats_per_mac_map_fd);
+
+	// Detach XDP program from interface using libbpf.
+	xdp_link_detach(cfg.ifindex, cfg.xdp_flags, 0);
+
+	return exitcode;
 }
