@@ -11,7 +11,7 @@
 #include <common_defines.h>
 #include <common_user_bpf_xdp.h>
 
-#include "bpf/xdp-drop_and_count-commons.h"
+#include "xdp-drop_and_count-commons.h"
 
 #define EXIT_OK 0
 #define EXIT_FAIL_BPFLOAD 1
