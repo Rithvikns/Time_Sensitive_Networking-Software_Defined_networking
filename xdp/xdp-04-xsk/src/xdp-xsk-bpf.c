@@ -14,7 +14,7 @@ struct {
 	__uint(max_entries, 64); // assume there are at maximum this number of RX queues for a network device
 	__type(key, sizeof(uint32_t)); 
 	__type(value, sizeof(uint32_t));
-} xsks_map SEC(".maps");
+} xsk_map SEC(".maps");
 
 
 SEC("xdp-xsk")
@@ -24,8 +24,8 @@ int xdp_prog_main(struct xdp_md *ctx)
 	
 	// Check whether an XSK (socket of type AF_XDP) has been bound to RX queue of the device
 	// from which the current packet has been received.
-	if (bpf_map_lookup_elem(&xsks_map, &index))
-		return bpf_redirect_map(&xsks_map, index, 0);
+	if (bpf_map_lookup_elem(&xsk_map, &index))
+		return bpf_redirect_map(&xsk_map, index, 0);
 
 	// No XSK bound for this RX queue -> pass on packet to network stack
 	return XDP_PASS;
