@@ -20,6 +20,7 @@
 #define EXIT_FAIL_FINDELEM 3
 #define EXIT_FAIL_USAGE 4
 #define EXIT_FAIL_DEVICE 5
+#define EXIT_FAILSIGNAL 6
 
 static int do_exit = 0;
 
@@ -35,7 +36,7 @@ int get_map_fd(struct bpf_object *bpf_obj, const char *maps_name)
 	return bpf_map__fd(map);
 }
 
-void print_mac(char *addr, size_t len)
+void print_mac(unsigned char *addr, size_t len)
 {
 	for (size_t i = 0; i < len; i++) {
 		printf("%02x", addr[i]);
@@ -139,7 +140,10 @@ int main(int argc, char *argv[])
 	// User has specified all required options.
 
 	// Catch SIGINT when user exits applications (Ctrl-C).
-        signal(SIGINT, sigint_handler);
+        if ( signal(SIGINT, sigint_handler) == SIG_ERR) {
+		perror("Could not attach signal handler");
+		return EXIT_FAILSIGNAL;
+	}
 	
 	if ( (cfg.ifindex = if_nametoindex(cfg.ifname)) == 0) {
 		perror("Could not get interface index");
