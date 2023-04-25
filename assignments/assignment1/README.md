@@ -1,10 +1,10 @@
-The basic purpose of this assignment is to get familiar with basic commands for network configuration in Linux and the work environment (your VM, Git). 
+The basic purpose of this assignment is to get familiar with basic commands for network configuration in Linux, the work environment (your VM, Git), and the tools for implementing a simple socket program. 
 
-Deadline for turning in solutions: Thursday, May 4, 2023 (end of day) 
+**Deadline** for turning in solutions: **Thursday, May 4, 2023 (end of day)** 
 
 # Background
 
-See slides provided in this Git in the folder /linux-networking-basics.
+See slides provided in this repository in the folder /linux-networking-basics.
 
 For the full syntax and a detailed explanation of all commands and their options, please read the man pages, in particular:
 
