@@ -1,15 +1,22 @@
 The basic purpose of this assignment is to get familiar with basic commands for network configuration in Linux and the work environment (your VM, Git). 
 
+Deadline for turning in solutions: Thursday, May 4, 2023 (end of day) 
+
 # Background
 
 See slides provided in this Git in the folder /linux-networking-basics.
 
 For the full syntax and a detailed explanation of all commands and their options, please read the man pages, in particular:
 
+```console
 $ man ip link
 $ man ip address
 $ man ip netns
+$ man netcat
+$ man curl
 $ man tcpdump
+$ man tshark
+```
 
 # Tasks of the Assignment
 
@@ -35,7 +42,6 @@ Next, we want to connect three network namespaces through a virtual Ethernet bri
 5. Assign a private IPv4 address from the same sub-network to each virtual Ethernet devices that runs in a namespace (the end connected to the bridge does not need an IP address).
 6. From each namespace, `ping` the other IP addresses in the other namespaces. If this does not work, check your commands above.  
 7. Start a netcat server on port 1234 using TCP in namespace red and another server on port 1234 in namespace green. Use netcat as client in namespace blue to send messages "Hello red from blue" and "Hello green from blue" to both servers namespac red and green.
-
 
 ## Task 3: Using tcpdump to monitor packets on a network interface
 
@@ -67,9 +73,9 @@ Use again the setup from Task 2.
 
 1. Start a simple Python-based web server in namespace red using the command `python3 -m http.server`. This server will serve all files from the current working directory via HTTP.
 2. Use cURL from namespace blue to request a file from the web server running namespace red.
-3. Use tshark in namespace red to record (only) to record all traffic to a file `trace.pcap`
-4. Use tshark to display only TCP SYN requests from the file.
-4. Use tshark to display only the HTTP traffic from the file. 
+3. Use tshark in namespace red to record (only) to record all traffic to a file `trace.pcap`.
+4. Use tshark to display only TCP SYN requests from the file. Add an excerpt from the output to the solution.
+5. Use tshark to display only the HTTP traffic from the file. Add an excerpt from the output to the solution.
 
 ## Task 5: Socket programming
 
@@ -89,7 +95,7 @@ This should create two executables called `client` and `server`.
 
 ### Task 5.1
 
-Extend the server code in the file `server.c` to implement a server listening on a given port (provided as command line argument, see given code).
+Extend the server code in the file `server.c` to implement a server listening on a given port (provided as command line argument, see given code) and all network interfaces.
 
 Use a socket for connection-less (unreliable) communication using datagrams.
 
