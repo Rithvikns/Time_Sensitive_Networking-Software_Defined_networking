@@ -2,6 +2,8 @@ In this assignment, we will focus on proactive flow programming, i.e., proactive
 
 **Deadline** for turning in solutions: **Thursday, May 25, 2023 (end of day)** 
 
+All tools required for this tasks are installed on your virtual machine hosted by us and in the virtual machine image that you can use on your own machine.
+
 # Background
 
 See slides provided in this repository in the folder `/sdn`.
