@@ -62,7 +62,7 @@ Next, enable the communication between the hosts by pushing two flows to the swi
 Note that the flows should only match on incoming ports.
 Provide the commands in your solution.
 
-Inspect the flow table of switch s1 using a suitable ovs-ofctl command (provide the command and output with your solution).
+Inspect the flow table of switch s1 using a suitable ovs-ofctl command (provide the command and output with your solution). Note that ovs-ofctl doe not only show the definition of each flow table entry, but also how often each flow entry did match incoming packets, which might be handy for testing newly added flows (did they actually match?). 
 
 Test forwarding by pinging the second host from the first host and vice versa, using their IP addresses, in Mininet (this should work).
 Provide the Mininet commands.
@@ -174,6 +174,18 @@ Next, install flows at each router on the path from h1 to h4 and vice versa to f
 The last forwarding hop from the last router in the subnetwork of the destination host to the destination host is different since the MAC address has to be changed to the MAC address of the destination host. Install flows such that the MAC addresses are adapted before the packet is finally forwarded to the destination host. Provide the commands with your solution.
 
 Finally, test your setup by pinging host h4 from h1 (if everything is set up correctly, it should work).  
+
+## Bonus task: Calculating static routes
+
+This task is a bonus task. It is not mandatory to complete. You can get the best grade also without doing this task. However, if you complete the task sucessfully, you get an update of maximum 1.0 to the grade of the rest of the tasks (but never better than 1.0 :)
+
+Implement in the programming language of your choice a program that:
+
+* Takes as input the names of two hosts, say h1 and h2. 
+* Queries the network topology using the REST interface of Floodlight (HTTP query with JSON response). You can use all REST-APIs that are available in Floodlight.
+* Translates the topology (JSON response) to a graph structure in your program. You can use any existing JSON parser, graph library, etc.
+* Calculates the shortes path (route) between h1 and h2. You can use shortest path algorithms from libraries (or implement the algorithm yourself). 
+* Translates the shortest path to flow table entries for the static flow pusher of Floodlight and stores them in a file in JSON format (so they can be pushed with cURL), or automatically push them from your program via HTTP. 
 
 # Solutions
 
