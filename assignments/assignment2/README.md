@@ -177,7 +177,7 @@ Finally, test your setup by pinging host h4 from h1 (if everything is set up cor
 
 ## Bonus task: Calculating static routes
 
-This task is a bonus task. It is not mandatory to complete. You can get the best grade also without doing this task. However, if you complete the task sucessfully, you get an update of maximum 1.0 to the grade of the rest of the tasks (but never better than 1.0 :)
+This task is a bonus task. It is not mandatory to complete. You can get the best grade also without doing this task. However, if you complete the task sucessfully, you get an update of maximum 1.0 to the grade of the rest of the tasks (i.e., we will subtract a maximum value of 1.0 from your grade for the rest of the tasks, but the final grade will never better than 1.0 :)
 
 Implement in the programming language of your choice a program that:
 
