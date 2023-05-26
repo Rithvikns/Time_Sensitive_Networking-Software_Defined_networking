@@ -1,6 +1,6 @@
 In this assignment, we will focus on reactive flow programming, i.e., the SDN controller will program flow table entries after receiving packet-in events from switches, whenever they have no matching flow table entry. We will implement a learning bridge that operates on layer 2 (data link layer), i.e., using MAC addresses. The controller automatically learns the egress ports of packets by inspecting the MAC addresses included in ARP requests and other packets and programs the flow tables of switches accordingly.
 
-**Deadline** for turning in solutions: **Thursday, June 8, 2023 (end of day)** 
+**Deadline** for turning in solutions: **Thursday, June 15, 2023 (end of day)** 
 
 # Prerequisites
 
