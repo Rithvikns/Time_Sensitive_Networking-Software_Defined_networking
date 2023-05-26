@@ -1,4 +1,4 @@
-In this assignment, we will focus on reactive flow programming, i.e., the SDN controller will program flow table entries after receiving packet-in events from switches, whenever they have no matching flow table entry. We will implement a learning bridge that operates on layer 2 (data link layer), i.e., using MAC addresses. This bridge will automatically learn the egress ports of packets by inspecting the MAC addresses included in ARP requests and other pakcets.
+In this assignment, we will focus on reactive flow programming, i.e., the SDN controller will program flow table entries after receiving packet-in events from switches, whenever they have no matching flow table entry. We will implement a learning bridge that operates on layer 2 (data link layer), i.e., using MAC addresses. The controller automatically learns the egress ports of packets by inspecting the MAC addresses included in ARP requests and other packets and programs the flow tables of switches accordingly.
 
 **Deadline** for turning in solutions: **Thursday, June 8, 2023 (end of day)** 
 
@@ -8,9 +8,11 @@ We use the Floodlight SDN controller, in particular, its Java API in this assign
 
 ## Using the provided VM image for Virtual Box
 
-By far the easiest way is to use the provided VM image for Virtual Box where everything is already installed and set up, and you do not need to tinker around with ssh port forwarding:
+By far the easiest way is to use the provided VM image for Virtual Box where everything is already installed and set up, and you do not need to tinker around with ssh port forwarding: [Virtual Machine Image]() 
 
-1. Simply start Eclipse and provide the IP address and port number to Mininet also running in the same VM:
+Simply start Eclipse and provide the IP address and port number to Mininet also running in the same VM:
+
+1. Start Eclipse:
 
 ```console
 $ /usr/local/eclipse/eclipse
@@ -30,9 +32,9 @@ OpenJDK 1.8 is included with many Linux distributions.
 
 Or you can download the JDK from Oracle (registration required): [Oracle Java SE 8](https://www.oracle.com/de/java/technologies/javase/javase8-archive-downloads.html)
 
-2. Download and install Eclipse: [Eclipse](https://www.eclipse.org/downloads/)
+2. Download and install [Eclipse](https://www.eclipse.org/downloads/)
 
-3. Download our version of Floodlight: [Floodlight](https://ipvs.informatik.uni-stuttgart.de/cloud/s/kNzt9YK5j4JRg5M)
+3. Download our version of [Floodlight](https://ipvs.informatik.uni-stuttgart.de/cloud/s/kNzt9YK5j4JRg5M)
 
 4. Unzip Floodlight into your Eclipse workspace directory
 
@@ -44,21 +46,19 @@ File -> Import -> General -> Existing Projects into Workspace -> select director
 
 7. Change the Floodlight project properties to use JDK 1.8:
 
-Window -> Preferences -> Java -> Installed JREs -> Add -> Standard VM -> Select folder where JDK 1.8 is installed
-
-Right click on Floodlight project -> Java Compiler -> Enable project specific settings -> Compiler compliance level 1.8
-
-Right click on Floodlight project -> Java Build Path -> Libraries -> JRE System Library -> Edit -> Alternate JRE -> select JRE 1.8 (which you added above)
+* Window -> Preferences -> Java -> Installed JREs -> Add -> Standard VM -> Select folder where JDK 1.8 is installed
+* Right click on Floodlight project -> Java Compiler -> Enable project specific settings -> Compiler compliance level 1.8
+* Right click on Floodlight project -> Java Build Path -> Libraries -> JRE System Library -> Edit -> Alternate JRE -> select JRE 1.8 (which you added above)
 
 8. Select Floodlight run or debug configuration to start Floodlight:
 
-Run -> Run Configurations -> Java Application -> Floodlight-Default-Conf
+* Run -> Run Configurations -> Java Application -> Floodlight-Default-Conf
 
-If you run Mininet on the VMs labcourse1..4, you might need to set up port forwarding for ssh if you are not connected to the computer science network (see option `-R` of ssh).
+If you run Mininet on the VMs vslabcourse1..4, you might need to set up port forwarding for ssh if you are not connected to the computer science network (see option `-R` of ssh).
 
-Further information can be found in the officialFloodlight installation guide: [Floodlight installation guide](https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide)
+Further information can be found in the official [Floodlight installation guide](https://floodlight.atlassian.net/wiki/spaces/floodlightcontroller/pages/1343544/Installation+Guide).
 
-See slides provided in this repository in the folder `/sdn` for a short explanation of the Floodlight Java API. More information can be found in the Floodlight tutorial: [Floodlight tutorial]()
+See slides provided in this repository in the folder `/sdn` for a short explanation of the Floodlight Java API. More information can be found in the [Floodlight tutorial]().
 
 # Tasks of the Assignment
 
