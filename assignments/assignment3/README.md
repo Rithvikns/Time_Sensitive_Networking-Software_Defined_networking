@@ -42,7 +42,7 @@ Or you can download the JDK from Oracle (registration required): [Oracle Java SE
 
 6. Import the Floodlight project into Eclipse:
 
-File -> Import -> General -> Existing Projects into Workspace -> select directory where you unzipped the Floodlight ZIP file
+* File -> Import -> General -> Existing Projects into Workspace -> select directory where you unzipped the Floodlight ZIP file
 
 7. Change the Floodlight project properties to use JDK 1.8:
 
@@ -85,12 +85,13 @@ In detail, forwarding should proceed as follows:
 
 1. Switches have only one default flow table entry with lowest priority that instructs the switch to forward all packets to the controller. You can check that Floodlight automatically adds this flow table entry using the tool `ovs-ofctl` (see last assignment).
 2. The controller should implement a callback function to receive packet-in events. Whenever it receives a packet-in event with a packet, it should execute the following steps:
-    1. Instruct the switch, from which it received the packet-in event, to flood the packet.
+    1. Instruct the switch from which it received the packet-in event to flood the packet.
     2. Print the following information of received packets, e.g., on the console or as log messages:
-        * The source and destination MAC addresses
-	* The Ethertype of the packet (IPv4, IPv6, ICMP, ARP)
-	* For ARP requests and responses the information of the request and response, respectively
-	* For IP packets, the source and destination IP addresses
+        
+* The source and destination MAC addresses
+* The Ethertype of the packet (IPv4, IPv6, ICMP, ARP)
+* For ARP requests and responses the information comtained in request and response, respectively
+* For IP packets, the source and destination IP addresses
 
 To test your implementation, start Floodlight and ping host `h3` from host `h1`.
 
@@ -102,10 +103,10 @@ Now, we extent the implementation from Task 1 to implement a learning bridge.
 
 Create a new class `LearningBridge` in the package `de.ustutt.ipvs`. As a start, copy the implementation from Task 1 to this file and modify it.
 
-The controller should now reactively (at packet-in events) set up flow table entries that forward specific destination MAC addresses over the right egress port towards the destination. To this end, it should learn from the following packets:
+The controller should now reactively (at packet-in events) set up flow table entries that forward specific destination MAC addresses over the right egress port towards the destination. To this end, it should learn from the following packets the egrees ports for MAC addresses:
 
-* ARP requests and responses. Make sure that ARP still works, i.e., the controller also needs to forward ARP request and responses appropriately such that they reach their destination(s).   
-* The source address of all other packets received as packet-in events (for the unlikely case that static ARP entries are used ny hosts and no ARP requests are sent in the network; note that you should _not_ use static ARP entries in Mininet in this task, but rely on ARP to figure our MAC addresses for IP addresses automatically as usual). 
+* ARP requests and responses. Make sure that ARP still works, i.e., the controller also needs to forward ARP requests and responses appropriately such that they reach their destination(s).   
+* The source address of all other packets received as packet-in events for the unlikely case that static ARP entries are used by hosts and no ARP requests are sent by hosts. Note that you should _not_ use static ARP entries in Mininet in this task, but rely on ARP to figure our MAC addresses for IP addresses automatically as usual. 
 
 Since hosts might change their point of attachment to switches in the network or leave the network, also make sure that your implementation can adapt to such dynamic changes eventually.
 
@@ -121,7 +122,7 @@ As part of your solution, submit the file implementing the class `LearningBridge
 
 Provide here the documentation of your solutions for each task (one sub-section per task).
 
-Extend this README file as follows in this section, by explaining your solution.
+Extend this README file in this section to explain your solution.
 
 In addition, submit the files that include your implementation in the same folder as this README file. You do not have to copy the whole Eclipse project including all Floodlight files to your repository, just your implementation.
 
