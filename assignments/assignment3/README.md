@@ -1,10 +1,10 @@
-In this assignment, we will focus on reactive flow programming, i.e., the SDN controller will program flow table entries after receiving packet-in events from switches, whenever they have no matching flow table entry. We will implement a learning bridge that operates on layer 2 (data link layer), i.e., using MAC addresses. This bridge will automatically learn the egress ports of messages by inspecting the MAC addresses including in ARP requests and other frames.
+In this assignment, we will focus on reactive flow programming, i.e., the SDN controller will program flow table entries after receiving packet-in events from switches, whenever they have no matching flow table entry. We will implement a learning bridge that operates on layer 2 (data link layer), i.e., using MAC addresses. This bridge will automatically learn the egress ports of packets by inspecting the MAC addresses included in ARP requests and other pakcets.
 
-**Deadline** for turning in solutions: **Thursday, May 8, 2023 (end of day)** 
+**Deadline** for turning in solutions: **Thursday, June 8, 2023 (end of day)** 
 
 # Prerequisites
 
-We use the Floodlight SDN controller, in particular, its Java API in this assignment. We recommend using Eclipse in this assignment---although you are free to use any other developing environment---and executing Eclipse on your personal laptop or PC. You can run Mininet in the provided VMs labcourse1..4 or in the provided VM for Virtual Box and connect it to the Floodlight controller running on your personal laptop or PC.
+We use the Floodlight SDN controller, in particular, its Java API in this assignment. We recommend using Eclipse in this assignment---although you are free to use any other developing environment---and executing Eclipse on your personal laptop or PC. You can run Mininet in the provided VMs vslabcourse1..4 or in the provided VM for Virtual Box and connect it to the Floodlight controller running on your personal laptop or PC.
 
 ## Using the provided VM image for Virtual Box
 
@@ -12,7 +12,9 @@ By far the easiest way is to use the provided VM image for Virtual Box where eve
 
 1. Simply start Eclipse and provide the IP address and port number to Mininet also running in the same VM:
 
+```console
 $ /usr/local/eclipse/eclipse
+```
 
 2. In Eclipse, click Run or Debug symbol -> Floodlight Default-Conf
 
@@ -74,10 +76,10 @@ Note: if you run the Floodlight controller on a remote machine, you need to chan
 
 Implement a Floodligh module for the controller that floods all packets whenever it receives a packet-in event. Use the name `SimpleForwarding` in the Java package `de.ustutt.ipvs` for the class implementing this module.
 
-You need to add the entry `` to the following files to instruct Floodlight to load your module:
+You need to add the entry `de.ustutt.ipvs.SimpleForwarding` to the following files of the Floodlight project to instruct Floodlight to load your module:
 
-*
-*
+* `src/main/resources/floodlightdefault.properties`
+* `src/main/resources/META-INF/services/net.floodlightcontroller.core.module.IFloodlightModule`
 
 In detail, forwarding should proceed as follows:
 
@@ -105,7 +107,9 @@ The controller should now reactively (at packet-in events) set up flow table ent
 * ARP requests and responses. Make sure that ARP still works, i.e., the controller also needs to forward ARP request and responses appropriately such that they reach their destination(s).   
 * The source address of all other packets received as packet-in events (for the unlikely case that static ARP entries are used ny hosts and no ARP requests are sent in the network; note that you should _not_ use static ARP entries in Mininet in this task, but rely on ARP to figure our MAC addresses for IP addresses automatically as usual). 
 
-Test your implementation again with the following topology:
+Since hosts might change their point of attachment to switches in the network or leave the network, also make sure that your implementation can adapt to such dynamic changes eventually.
+
+Test your implementation again with the following topology, again by pinging host `h3` from host `h1`: 
 
 ```console
 $ sudo mn --controller remote,ip=127.0.0.1,port=6653 --switch ovs,protocols=OpenFlow13 --topo tree,depth=2,fanout=2 --mac
