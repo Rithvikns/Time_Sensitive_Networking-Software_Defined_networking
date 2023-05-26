@@ -8,7 +8,7 @@ We use the Floodlight SDN controller, in particular, its Java API in this assign
 
 ## Using the provided VM image for Virtual Box
 
-By far the easiest way is to use the provided VM image for Virtual Box where everything is already installed and set up, and you do not need to tinker around with ssh port forwarding: [Virtual Machine Image]() 
+By far the easiest way is to use the provided VM image for Virtual Box where everything is already installed and set up, and you do not need to tinker around with ssh port forwarding: [Virtual Machine Image](https://ipvs.informatik.uni-stuttgart.de/cloud/s/LGPZrd5copkdEA6) 
 
 Simply start Eclipse and provide the IP address and port number to Mininet also running in the same VM:
 
