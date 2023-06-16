@@ -4,37 +4,38 @@ In this assignment, we will focus on Time Sensitive Networking (TSN), in particu
 
 # Prerequisites
 
-Besides a standard Linux system, C compiler, and the common networking tools like tcpdump, no special tools are required in this assignment. You can use the provided VMs vslabcourse1..4 or the Virtual Box VM image (same image as in the last assignment, so you can re-use your personal VM from the last assignment or download the image (here)[https://ipvs.informatik.uni-stuttgart.de/cloud/s/LGPZrd5copkdEA6]).  
+Besides a standard Linux system, C compiler, and the common networking tools like tcpdump, no special tools are required in this assignment. You can use the provided VMs vslabcourse1..4 or the Virtual Box VM image (same image as in the last assignment, so you can re-use your personal VM from the last assignment or download the image [here](https://ipvs.informatik.uni-stuttgart.de/cloud/s/LGPZrd5copkdEA6).  
 
 # Recommended reading:
 
-* (Blog post)[https://www.frank-durr.de/posts/2019/04/11/software_tsn_switch.html] explaining TAPRIO
-* (TAPRIO man page)[https://man7.org/linux/man-pages/man8/tc-taprio.8.html]
+* [Blog post](https://www.frank-durr.de/posts/2019/04/11/software_tsn_switch.html) explaining TAPRIO
+* [TAPRIO man page](https://man7.org/linux/man-pages/man8/tc-taprio.8.html)
 
 # Tasks of the Assignment
 
 ## Task 1: Time-Aware Scheduling in Simple Network Topology
 
-In this task, we use a simplified topology consisting of only one listener and one talker, each running in their own namespaces, directly connected through a pair of veth devices. In particular, no bridge is used in this assignment. 
+In this task, we use a simplified topology consisting of only one listener and one talker, each running in their own network namespaces, directly connected through a pair of veth devices. In particular, no bridge is used in this task. 
 
 ## Task 1.1: Simple UDP Talker and Listener
 
 First, implement simple talker and listener applications that communicate through UDP/IP. The talker should send datagrams in an endless loop as fast as possible. Traffic is only flowing downstream from the talker to the listener. Each datagram should include a single unsigned 64 bit integer as payload, denoting the time in nano-seconds just before the datagram was sent by the talker. The listener shall also take a timestamp just after it received each datagram (we will later use these timestamps to calculate the network delay). 
 
-1. Create two namespace called `talker` and `listener`, respectively.
-2. Create a veth-connection (pair of veth devices `veth-t` and `veth-l`) and assign the ends to the namespaces. Assign IP addresses to the veth devices.
-3. Start in the namespace `listener` tcpdump as follows to inspect the received packets: `$ tcpdump -l -e -i veth-l`
-4. Start the listener and then the talker and check, whether the communication works.
+1. Create two namespaces called `talker` and `listener`, respectively.
+2. Create a veth-connection (pair of veth devices `veth-t` and `veth-l`) and assign the ends to the namespaces. 
+3. Assign IP addresses to the veth devices.
+4. Start tcpdump in the namespace `listener` as follows to inspect the received packets: `$ tcpdump -l -e -i veth-l`
+5. Start the listener and then the talker and check, whether the communication works.
 
 Submit all command and the source code of the talker and listener as part of your solution.
 
 ## Task 1.2: Scheduling with TAPRIO
 
-In this task, we repeat the experiment from the previous task, but now with time-aware shaper through TAPRIO.
+In this task, we repeat the experiment from the previous task, but now with time-aware shaping through TAPRIO.
 
 Modify the talker from Task 1.1 to set the priority of all egrees datagrams to 1 (instead of the default 0). 
 
-Create a veth-connection, where the talker veth device (`veth-t`) has 8 TX queues.
+Create a veth link, where the talker veth device (`veth-t`) has 8 TX queues.
 
 Add a TAPRIO QDisc to the device `veth-t` of the talker to shape the outgoing traffic from the talker. Configure the cyclic schedule of TAPRIO as follows:
 
@@ -50,7 +51,7 @@ Add all commands, source code, and an excerpt of tcpdump to your solution.
 
 In this task, the talker should send cyclic traffic, i.e., datagrams are sent periodically by the talker. The period (cycle time) shall be 100 ms. In each cycle, a single datagram is sent. The cycle shall not be synchronized to the schedule of TAPRIO (otherwise, this would be called isochronous traffic, which is considered in the next task). Datagrams shall be sent with priority 1. 
 
-TAPRIO shall schedule traffic from the talker again at `veth-t`. Traffic of priority 1 shall be scheduled as follows: Gate open for 50 ms, closed for 50 ms, open for 50 ms, etc.
+TAPRIO shall schedule traffic from the talker again at `veth-t`. Traffic of priority 1 shall be scheduled as follows: gate open for 50 ms, closed for 50 ms, open for 50 ms, etc.
 
 Execute the talker and listener, and record the end-to-end network delay of each datagram to a file, using the timestamps taken by the talker and listener.
 
@@ -74,15 +75,17 @@ Add all commands, source code, and the analysis of the delay to your solution.
 
 In this task we consider a more sophisticated and realistic TSN network topology including a (virtual Linux) bridge between the talker and the listener:
 
+```
 ----------        ----------        ------------
 | Talker |--------| Bridge |--------| Listener | 
 ----------        ----------        ------------
+```
 
 The talker and listener again run in their own network namespaces. The bridge is in the root namespace.
 
-The links are implemented again with veth devices, however, now VLANs shall be used additionally. Talker and listener both belong to VLAN 100. VLAN tags shall be added at the sender side of a link and stripped of at the receiver side, i.e., you have VLAN veth devices at both ends of the link. Again, the talker sends traffic of priority 1. This priority shall be mapped to the PCP field of the VLAN-tagged packets from the talker to the bridge, and from the bridge to the listener. 
+The links are implemented again with veth devices, however, now VLANs shall be used additionally. Talker and listener both belong to VLAN 100. VLAN tags shall be added at the sender side of a link and stripped off at the receiver side, i.e., you have VLAN veth devices at both ends of the link. Again, the talker sends traffic of priority 1. This priority shall be mapped to the PCP field of the VLAN-tagged packets from the talker to the bridge, and from the bridge to the listener. 
 
-Scheduling with TAPRIO is only done at the egress port of the bridge towards the listener. Note that TAPRIO uses socket buffer (SKB) priorities rather than the value of the PCP field. Thus, you need to map the PCP value at the ingress port of the bridge to an SKB priority or all traffic will be treated at priority 0 traffic.
+Scheduling with TAPRIO is only done at the egress port of the bridge towards the listener. Note that TAPRIO uses socket buffer (SKB) priorities rather than the value of the PCP field. Thus, you need to map the PCP value at the ingress port of the bridge to an SKB priority, otherwise all traffic will be treated at priority 0 traffic.
 
 Configure TAPRIO as follows:
 
@@ -90,13 +93,15 @@ Configure TAPRIO as follows:
 * The queue for priority 0 traffic shall always be open. This will allow ARP messages to be transmitted at any time.
 * The queue for priority 1 shall be open for 0.75 sec and closed for 0.25 sec, resulting in a schedule with period 1 sec (which is quite long, but the effects of scheduling are easier to see).
 
-Use tcpdump at the listener side to show that TAPRIO is effective in scheduling traffic, i.e., you should see gaps of 0.25 sec duration in the packet trace.
+Use tcpdump at the listener side to show that TAPRIO is effective in scheduling traffic, i.e., you should see gaps of 0.25 sec duration in the packet trace. Moreover, use tcpdump at the veth device before VLAN tags are removed to show that traffic is actually tagged, including a VID and PCP (priority). 
 
 # Bonus Task
 
-This bonus task is absolutely voluntary! You can get the best possible grade (1.0) without doing it. By doing the bonus task you can improve your grade by a maximum value of 1.0. A word of caution: there is a good chance that it is impossible to solve this task (but a "90 % solution" is possible and you will learn a lot about iptables). 
+This bonus task is absolutely voluntary! You can get the best possible grade (1.0) without doing it. By doing the bonus task you can improve your grade by a maximum value of 1.0. 
 
-Use iptables to implement the mapping from PCP values to SKB priorities at the bridge as described in (this blog post)[https://www.frank-durr.de/posts/2019/04/11/software_tsn_switch.html]. That is, rather than stripping of the VLAN tags at the end of a veth connection, the bridge shall internally forward VLAN-tagged packets, and ports are assigned to VLAN ids (as it is typically done for bridges). iptables should match on the PCP field and classify the packets (adding the corresponding SKB priority).   
+A word of caution: there is a good chance that it is impossible to solve this task (but a "90 % solution" is possible and you will learn a lot about iptables). 
+
+Use iptables to implement the mapping from PCP values to SKB priorities at the bridge as described in [this blog post](https://www.frank-durr.de/posts/2019/04/11/software_tsn_switch.html). That is, rather than stripping off the VLAN tags at the end of a veth connection, the bridge shall internally forward VLAN-tagged packets, and ports are assigned to VLAN ids (as it is typically done for bridges). iptables should match on the PCP field and classify the packets (adding the corresponding SKB priority).   
 
 # Solutions
 
