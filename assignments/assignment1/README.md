@@ -41,7 +41,7 @@ Next, we want to connect three network namespaces through a virtual Ethernet bri
 4. Assign the other virtual device of each virtual Ethernet device pair to the bridge to connect the devices of each namespace to the bridge.
 5. Assign a private IPv4 address from the same sub-network to each virtual Ethernet devices that runs in a namespace (the end connected to the bridge does not need an IP address).
 6. From each namespace, `ping` the other IP addresses in the other namespaces. If this does not work, check your commands above.  
-7. Start a netcat server on port 1234 using TCP in namespace red and another server on port 1234 in namespace green. Use netcat as client in namespace blue to send messages "Hello red from blue" and "Hello green from blue" to both servers namespac red and green.
+7. Start a netcat server on port 1234 using TCP in namespace red and another server on port 1234 in namespace green. Use netcat as client in namespace blue to send messages "Hello red from blue" and "Hello green from blue" to both servers namespace red and green.
 
 ## Task 3: Using tcpdump to monitor packets on a network interface
 
@@ -123,6 +123,6 @@ Extend this README file as follows in this section, by showing:
 * The output of these instructions where requested in the task.
 * Answers to the questions asked in the tasks.
 
-For immplementation tasks, submit your code and (if necessary) a short instruction in this README file on how to start your application or any other necessary information (besides the inline documentation in the code). 
+For implementation tasks, submit your code and (if necessary) a short instruction in this README file on how to start your application or any other necessary information (besides the inline documentation in the code). 
 
 The submission is done via Git: add, commit, and push your solution to *your* Git repository (not the repository that we provided; the fork). We will pull the solution from your repository after the deadline (please do not forget to invite us to your repository).
